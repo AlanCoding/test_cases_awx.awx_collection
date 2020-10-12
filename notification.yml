@@ -1,0 +1,32 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  tasks:
+    - name: Delete notification template
+      tower_notification:
+        name: slack notification
+        organization: Default
+        notification_type: slack
+        state: absent
+
+    - name: Add Slack notification with custom messages
+      tower_notification:
+        name: slack notification
+        organization: Default
+        notification_type: slack
+        notification_configuration:
+          channels:
+            - general
+          token: asdfasdfasdfasdfasdfasdfasdfasdfasdf
+        messages:
+          started:
+            message: "{{ '{{ job_friendly_name }}{{ job.id }} started' }}"
+          success:
+            message: "{{ '{{ job_friendly_name }} completed in {{ job.elapsed }} seconds' }}"
+          error:
+            message: "{{ '{{ job_friendly_name }} FAILED! Please look at {{ job.url }}' }}"
+        state: present
+

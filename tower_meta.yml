@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+    - ansible.tower
+  tasks:
+
+    - tower_meta:
+      register: result
+
+    - name: Show details about the collection
+      debug: var=result
+
+    # - name: Load the UI setting without hard-coding the collection name
+    #   debug:
+    #     msg: "{{ lookup(result.prefix + '.tower_api', 'settings/ui') }}"
