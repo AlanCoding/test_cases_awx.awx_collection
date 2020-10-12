@@ -1,0 +1,123 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  tasks:
+    - name: delete a workflow job template
+      tower_workflow_job_template:
+        name: example-workflow
+        organization: Default
+        state: absent
+
+    - name: Create a Job Template
+      tower_job_template:
+        name: my-job-1
+        project: Demo Project
+        inventory: Demo Inventory
+        playbook: hello_world.yml
+        ask_extra_vars: true
+        ask_credential: true
+        job_type: run
+        state: present
+
+    - name: Create a second Job Template
+      tower_job_template:
+        name: my-job-2
+        project: Demo Project
+        inventory: Demo Inventory
+        playbook: hello_world.yml
+        credential: Demo Credential
+        ask_extra_vars: true
+        job_type: run
+        ask_extra_vars: true
+        state: present
+
+    - name: Create a workflow job template
+      awx.awx.tower_workflow_job_template:
+        name: example-workflow
+        description: created by Ansible Playbook
+        organization: Default
+        survey_enabled: false
+        allow_simultaneous: no
+      register: new_workflow
+
+    - debug: var=new_workflow
+
+    # --- DECOY WORKFLOW ---
+    - name: create a second organization
+      tower_organization:
+        name: alan
+
+    - name: Create a workflow job template in the alan organization
+      awx.awx.tower_workflow_job_template:
+        name: example-workflow
+        organization: alan
+    # --- end DECOY WORKFLOW ---
+
+    # Node creation phase
+    - name: Create end of diamond
+      tower_workflow_job_template_node:
+        identifier: end
+        workflow: example-workflow
+        unified_job_template: my-job-2
+        organization: Default
+        extra_data:
+          foo_key: bar_value
+
+    - name: Create diamond middle1
+      tower_workflow_job_template_node:
+        identifier: middle1
+        workflow: example-workflow
+        unified_job_template: my-job-2
+        organization: Default
+        extra_data:
+          baz: far
+
+    - name: Create diamond middle2
+      tower_workflow_job_template_node:
+        identifier: middle2
+        workflow: example-workflow
+        unified_job_template: my-job-2
+        organization: Default
+        extra_data:
+          rrr: zzz
+
+    - name: Create root node
+      awx.awx.tower_workflow_job_template_node:
+        identifier: root
+        workflow: example-workflow
+        unified_job_template: my-job-1
+        organization: Default
+        extra_data:
+          foo_key2: bar_value2
+        credentials:
+          - Demo Credential
+
+    # Node assocation phase
+    - name: Associate nodes to middle
+      awx.awx.tower_workflow_job_template_node:
+        identifier: root
+        workflow: example-workflow
+        organization: Default
+        success_nodes:
+          - middle1
+        failure_nodes:
+          - middle2
+
+    - name: Associate middle1 to end
+      awx.awx.tower_workflow_job_template_node:
+        identifier: middle1
+        workflow: example-workflow
+        organization: Default
+        success_nodes:
+          - end
+
+    - name: Associate middle2 to end
+      awx.awx.tower_workflow_job_template_node:
+        identifier: middle2
+        workflow: example-workflow
+        organization: Default
+        success_nodes:
+          - end

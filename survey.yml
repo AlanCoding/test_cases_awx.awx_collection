@@ -1,0 +1,44 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  tasks:
+  - name: Create a Demo Project
+    tower_project:
+      name: Job Template Test Project
+      organization: Default
+      state: present
+      scm_type: git
+      scm_url: https://github.com/ansible/ansible-tower-samples.git
+    register: result
+
+  - name: Create a User-specific credential
+    tower_credential:
+      name: Demo Credential
+      organization: Default
+      user: admin
+      state: present
+      kind: ssh
+    register: result
+
+  # - name: Make the job template
+  #   tower_job_template:
+  #     name: my-job-2
+  #     project: Job Template Test Project
+  #     inventory: Demo Inventory
+  #     playbook: hello_world.yml
+  #     credential: Demo Credential
+  #     job_type: run
+  #     state: present
+
+  - name: Add a Survey to second Job Template
+    tower_job_template:
+      name: my-job-2
+      project: Job Template Test Project
+      inventory: Demo Inventory
+      playbook: hello_world.yml
+      credential: Demo Credential
+      job_type: run
+      state: present
+      survey_enabled: true
+      survey_spec: '{"spec": [{"index": 0, "question_name": "my question?", "default": "mydef", "variable": "myvar", "type": "text", "required": false}], "description": "test", "name": "test"}'

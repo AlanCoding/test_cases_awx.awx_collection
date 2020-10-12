@@ -1,0 +1,44 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  tasks:
+    - name: delete the inventory
+      tower_inventory:
+        name: example-inventory
+        organization: Default
+        state: absent
+
+    - name: create the inventory
+      tower_inventory:
+        name: example-inventory
+        organization: Default
+        state: present
+
+    - name: add hosts
+      tower_host:
+        name: "{{ item }}"
+        inventory: example-inventory
+      loop:
+        - host1
+        - host2
+        - host3
+
+    - name: add mid level group
+      tower_group:
+        name: child
+        inventory: example-inventory
+        hosts:
+          - host3
+
+    - name: add top group
+      tower_group:
+        name: parent
+        inventory: example-inventory
+        hosts:
+          - host1
+          - host2
+        children:
+          - child

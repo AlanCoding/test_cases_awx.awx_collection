@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  tasks:
+  # - name: Export demo stuff
+  #   tower_receive:
+  #     job_template:
+  #       - "Demo Job Template"
+  #   register: result
+  # 
+  # - debug: var=result
+
+  - name: New export
+    tower_export:
+      users: admin

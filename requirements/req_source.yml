@@ -1,0 +1,3 @@
+collections:
+  - name: community.graphana
+    src: https://github.com/ansible-collections/grafana

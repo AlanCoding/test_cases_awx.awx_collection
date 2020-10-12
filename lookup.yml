@@ -1,0 +1,62 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  tasks:
+
+  - name: Load the UI settings
+    debug:
+      msg: "{{ lookup('awx.awx.tower_api', 'settings/ui') }}"
+
+  - name: Report the usernames of all users with admin privs
+    debug:
+      msg: "Admin users: {{ query('awx.awx.tower_api', 'users', query_params={ 'is_superuser': true }) | map(attribute='username') | join(', ') }}"
+
+
+  - name: debug all organizations in a loop  # use query to return a list
+    debug:
+      msg: "Organization description={{ item['description'] }} id={{ item['id'] }}"
+    loop: "{{ query('awx.awx.tower_api', 'organizations') }}"
+    loop_control:
+      label: "{{ item['name'] }}"
+
+#     - tower_organization:
+#         name: alan2
+#         description: foo
+# 
+#     # - name: lookup org
+#     #   debug:
+#     #     msg: "{{ query('awx.awx.tower_api', 'organizations', query_params={'description': 'foo'})['results'][0] }}"
+# 
+#     # - name: debug all organizations
+#     #   debug:
+#     #     msg: "{{ item }}"
+#     #   with_awx.awx.tower_api: /api/v2/organizations/?description=foo
+# 
+#     - name: Load the UI settings  # plugin returns a list of 1 but lookup returns first element
+#       debug:
+#         msg: "{{ lookup('awx.awx.tower_api', 'settings/ui') }}"
+# 
+#     - name: Lookup any users who are admins  # use query to return the full list
+#       debug:
+#         msg: "{{ query('awx.awx.tower_api', 'users', query_params={ 'is_superuser': true }) | map(attribute='username') }}"
+# 
+#     # use lookup to return first item
+#     # the filter may return more than 1 item, it is users responsibility to assure this item is what they want
+#     # this can be used to pass related items to modules in the collection
+#     - name: Lookup a users ID
+#       debug:
+#         msg: "{{ lookup('awx.awx.tower_api', 'users', query_params={ 'username': 'admin' }, return_ids=True) }}"
+#
+#     # - name: lookup org, just lookup
+#     #   debug:
+#     #     msg: "{{ lookup('awx.awx.tower_api', 'organizations', query_params={'description': 'foo'}) }}"
+# 
+#     # - name: create inventory in looked up inventory
+#     #   tower_inventory:
+#     #     name: foo-inventory
+#     #     organization: "{{ query('awx.awx.tower_api', 'organizations', data={'description': 'foo'})[0] }}"
+# 
+# # .results[0].id

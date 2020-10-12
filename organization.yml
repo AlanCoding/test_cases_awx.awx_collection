@@ -1,0 +1,11 @@
+---
+- name: Most basic example
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  collections:
+    - awx.awx
+
+  tasks:
+  - tower_organization:
+      name: Default

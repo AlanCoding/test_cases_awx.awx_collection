@@ -1,0 +1,23 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+    - ansible.tower
+    - community.general  # for Ansible 2.10
+  vars:
+    loc_tests: "{{ playbook_dir | dirname }}/awx_collection/tests/integration/targets/"
+    test: everything
+  tasks:
+    - name: Include all targets
+      include: "{{ loc_tests }}{{ tasks_file.path }}"
+      when:
+        - tasks_file.state == 'file'
+        - tasks_file.path.endswith('yml')
+        - test == 'everything' or test in tasks_file.path
+      loop: "{{ lookup('community.general.filetree', '{{ loc_tests }}', wantlist=True) }}"
+      # with_filetree: "{{ loc_tests }}"  # For Ansible 2.9
+      loop_control:
+        label: "{{ tasks_file.path }}"
+        loop_var: tasks_file

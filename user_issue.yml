@@ -1,0 +1,20 @@
+---
+- name: Configure host for ansible/AWX
+  hosts: localhost
+  gather_facts: false
+  collections:
+    - awx.awx
+
+  tasks:
+    - name: Users AWX
+      tower_user:
+        username: test
+        state: absent
+
+    - name: Users AWX
+      tower_user:
+        username: test
+        first_name: FirstName
+        last_name: LastName
+        email: email@example.com
+        password: changeme

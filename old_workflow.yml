@@ -1,0 +1,23 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  tasks:
+    - name: delete a workflow job template
+      awx.awx.tower_workflow_template:
+        name: example-workflow
+        organization: Default
+        state: absent
+
+    - name: Create a workflow job template
+      awx.awx.tower_workflow_template:
+        name: example-workflow
+        description: created by Ansible Playbook
+        organization: Default
+        survey_enabled: false
+      register: new_workflow
+
+    - debug: var=new_workflow
+

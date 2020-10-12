@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - community.general
+  vars:
+    loc_tests: "/Users/alancoding/Documents/tower/sanity"
+  tasks:
+    # - name: Show targets
+    #   debug: msg="{{ loc_tests }}{{ tasks_file.path }}"
+    #   loop: "{{ lookup('community.general.filetree', '{{ loc_tests }}', wantlist=True) }}"
+    #   # community.general.with_filetree: "{{ loc_tests }}"
+    #   loop_control:
+    #     label: "{{ tasks_file.path }}"
+    #     loop_var: tasks_file
+
+    # - name: Show targets
+    #   debug: msg="{{ loc_tests }}{{ tasks_file.path }}"
+    #   with_community.general.filetree: "{{ loc_tests }}"
+    #   loop_control:
+    #     label: "{{ tasks_file.path }}"
+    #     loop_var: tasks_file
+
+    - name: For testing with Matt Davis collection redirection
+      debug: msg="{{ loc_tests }}{{ tasks_file.path }}"
+      with_filetree: "{{ loc_tests }}"
+      loop_control:
+        label: "{{ tasks_file.path }}"
+        loop_var: tasks_file

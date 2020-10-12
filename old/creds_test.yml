@@ -1,0 +1,27 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  tasks:
+    - name: Check that SSL is available and verify_ssl is enabled (task must fail)
+      tower_organization:
+        name: Default
+        validate_certs: true
+      environment:
+        TOWER_CERTIFICATE: /dev/null  # force check failure
+      ignore_errors: true
+      register: check_ssl_is_used
+
+    - name: Check that connection failed
+      assert:
+        that:
+          - check_ssl_is_used is failed
+
+    - name: Check that verify_ssl is disabled (task must not fail)
+      tower_organization:
+        name: Default
+        validate_certs: false
+      environment:
+        TOWER_CERTIFICATE: /dev/null  # should not fail because verify_ssl is disabled

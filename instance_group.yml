@@ -1,0 +1,34 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  tasks:
+    - name: Create an OpenShift Credential
+      tower_credential:
+        name: "John openshift credential"
+        organization: "Default"
+        credential_type: "OpenShift or Kubernetes API Bearer Token"
+        inputs:
+          host: "https://openshift.org"
+          bearer_token: "asdf1234"
+          verify_ssl: false
+
+    - name: Create an Instance Group
+      tower_instance_group:
+        name: "John instance group with policies"
+        policy_instance_percentage: 34
+        policy_instance_minimum: 12
+        state: present
+
+    - name: Create a container group
+      tower_instance_group:
+        name: "John instance group with credential"
+        credential: "John openshift credential"
+
+    - name: Create an instance group with list
+      tower_instance_group:
+        name: "alan instance group"
+        policy_instance_list:
+          - awx

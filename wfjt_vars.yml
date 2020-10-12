@@ -1,0 +1,72 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  module_defaults:
+    group/awx.awx.tower:  # https://github.com/ansible/awx/pull/7391
+      tower_host: https://foo.invalid
+      organization: Default
+  tasks:
+    - name: delete a workflow job template
+      awx.awx.tower_workflow_job_template:
+        name: issue-workflow5
+        # tower_host: https://foo.invalid
+        # organization: Default
+        state: absent
+
+    - name: Create a Project
+      awx.awx.tower_project:
+        name: Job Template Test Project
+        # organization: Default
+        state: present
+        scm_type: git
+        scm_url: https://github.com/ansible/ansible-tower-samples.git
+
+    - name: Create a Job Template
+      tower_job_template:
+        name: my-job-1
+        project: Job Template Test Project
+        inventory: Demo Inventory
+        playbook: hello_world.yml
+        job_type: run
+        state: present
+
+    - name: Create a second Job Template
+      tower_job_template:
+        name: my-job-2
+        project: Job Template Test Project
+        inventory: Demo Inventory
+        playbook: hello_world.yml
+        job_type: run
+        state: present
+
+    - name: Create a workflow job template
+      awx.awx.tower_workflow_template:
+        name: issue-workflow5
+        description: created by Ansible Playbook
+        # organization: Default
+        survey_enabled: false
+        allow_simultaneous: no
+        # from the tests
+        schema: '[{"success": [{"job_template": "my-job-1"}], "job_template": "my-job-2"}]'
+        # schema: "{{ lookup('file', '{{ playbook_dir }}/schema.json') }}"
+        # schema:
+        #   - job_template: Demo Job Template
+        # extra_vars:
+        #   var1: val1
+        #   var2:
+        #     var21: val21
+        #     var22: val22
+        #   var3:
+        #     - var4
+        #     - var5
+        #   var6:
+        #     - var7: val7
+        #     - var8: val8
+        #       var9: val9
+      register: new_workflow
+
+    - debug: var=new_workflow
+

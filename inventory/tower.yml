@@ -1,0 +1,2 @@
+plugin: awx.awx.tower
+inventory_id: 1

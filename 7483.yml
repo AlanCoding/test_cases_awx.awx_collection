@@ -1,0 +1,39 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  tasks:
+  - name: Add kubernetes credential type
+    awx.awx.tower_credential_type:
+      name: kubernetes
+      description: Credentials for a Kubernetes/OpenShift cluster
+      kind: cloud
+      inputs:
+        fields:
+        - id: name
+          type: string
+          label: A symbolic name for the cluster
+        - id: host
+          type: string
+          label: API host
+        - id: api_key
+          type: string
+          label: API Key (Token)
+          secret: true
+        - id: verify_ssl
+          type: boolean
+          label: Verify SSL
+          default: true
+        required:
+        - name
+        - host
+        - api_key
+        - verify_ssl
+      injectors:
+        env:
+          K8S_AUTH_NAME: "{{ '{{' }} name {{ '}}' }}"
+          K8S_AUTH_HOST: "{{ '{{' }} host {{ '}}' }}"
+          K8S_AUTH_API_KEY: "{{ '{{' }} api_key {{ '}}' }}"
+          K8S_AUTH_VERIFY_SSL: "{{ '{{' }} verify_ssl {{ '}}' }}"

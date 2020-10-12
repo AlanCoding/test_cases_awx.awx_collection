@@ -1,0 +1,23 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - awx.awx
+  tasks:
+  - name : Create a machine credential with a username and password - no description
+    tower_credential:
+      name: Joe_Test
+      credential_type: "Machine"
+      organization: "Default"
+      inputs:
+        username: joe
+        password: secret
+
+
+  - name : Change just the description (username and password should be unchanged)
+    tower_credential:
+      name: Joe_Test
+      credential_type: "Machine"
+      description: "My Credential"
+      organization: "Default"

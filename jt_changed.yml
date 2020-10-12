@@ -1,0 +1,36 @@
+---  # https://github.com/ansible/ansible/issues/64734
+- name: Add a Job Template
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  collections:
+    - alancoding.awx
+
+  tasks:
+  - name: Add Job Templates
+    tower_job_template:
+      name: "Test Job Template 01"
+      job_type: "run"
+      inventory: "Demo Inventory"
+      project: "Demo Project"
+      playbook: "hello_world.yml"
+      credential: "Demo Credential"
+      state: present
+      survey_enabled: True
+      survey_spec: '{
+                    "description": "", 
+                    "name": "", 
+                    "spec": [
+                        {
+                            "default": "master", 
+                            "max": null, 
+                            "min": null, 
+                            "new_question": true, 
+                            "question_description": "", 
+                            "question_name": "Ansible version", 
+                            "required": true, 
+                            "type": "text", 
+                            "variable": "ansible_release"
+                        }
+                    ]
+                }'

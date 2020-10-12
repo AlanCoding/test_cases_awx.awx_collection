@@ -1,0 +1,53 @@
+---
+- hosts: all
+  gather_facts: false
+  collections:
+    - awx.awx
+  tasks:
+    - name: delete the inventory
+      tower_inventory:
+        name: example-inventory
+        organization: Default
+        state: absent
+        tower_backend: server  # should not be necessary host/control bit of pain point
+        tower_username: admin
+
+    - name: create the inventory
+      tower_inventory:
+        name: example-inventory
+        organization: Default
+        state: present
+        tower_backend: server
+        tower_username: admin
+
+    - name: add hosts
+      tower_host:
+        name: "{{ item }}"
+        inventory: example-inventory
+        tower_backend: server
+        tower_username: admin
+      loop:
+        - host1
+        - host2
+        - host3
+
+    - name: add mid level group
+      tower_group:
+        name: child
+        inventory: example-inventory
+        hosts:
+          - host3
+        tower_backend: server
+        tower_username: admin
+
+    - name: add top group
+      tower_group:
+        name: parent
+        inventory: example-inventory
+        hosts:
+          - host1
+          - host2
+        children:
+          - child
+        tower_backend: server
+        tower_username: admin
